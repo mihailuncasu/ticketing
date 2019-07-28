@@ -3,7 +3,7 @@
 
 class Ticket extends Controller {
 
-    protected function Index() {
+    protected function create() {
         $viewmodel = new TicketModel();
         $this->returnView($viewmodel->create(), true);
     }

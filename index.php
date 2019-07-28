@@ -11,7 +11,9 @@ require 'App\Classes\Controller.php';
 require 'App\Classes\Model.php';
 require 'App\Classes\Messages.php';
 require 'App\Controllers\Home.php';
+require 'App\Controllers\Ticket.php';
 require 'App\Models\Home.php';
+require 'App\Models\Ticket.php';
 
 $bootstrap = new Bootstrap($_GET);
 $controller = $bootstrap->createController();
