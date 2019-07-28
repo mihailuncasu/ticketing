@@ -2,6 +2,9 @@
     text-align: center;
 }
 
+.alert {
+    width: 100%;
+}
 .simple-dialog {
     position: fixed;
     top: 0;

@@ -1,39 +1,56 @@
 <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>assets/css/viewtickets.css">  
 <div id="confirmBox"></div>
-<h2>View all tickets</h2>
-<table class="table table-hover myTable">
-    <!-- HEAD -->
-    <thead>
-        <tr>
-            <th style="width:15%">Subject</th>
-            <th style="width:20%">Department</th>
-            <th style="width:15%">Status</th>
-            <th style="width:20%">Email</th>
-            <th style="width:15%">Submission date</th>
-            <th style="width:15%">Actions</th>
-        </tr>
-    </thead>
-    <!-- BODY -->
-    <tbody>
-        <!-- FILTERS ROW -->
 
-        <tr class="table-primary">
+<div class="container">
+    <h4 class="mb-3">View all tickets</h4>
+    <table class="table table-hover myTable">
+        <!-- HEAD -->
+        <thead>
+            <tr>
+                <th style="width:15%">Subject</th>
+                <th style="width:20%">Department</th>
+                <th style="width:15%">Status</th>
+                <th style="width:20%">Email</th>
+                <th style="width:15%">Submission date</th>
+                <th style="width:15%">Actions</th>
+            </tr>
+        </thead>
+        <!-- BODY -->
+        <tbody>
+            <!-- FILTERS ROW -->
+            <tr class="table-primary">
+        <form method="POST">
             <td>
                 <input type="text" class="form-control" name="subject" id="subject">
             </td>
             <td>
                 <select class="custom-select d-block w-100" name="department" id="department">
-                    <option value="-1">All</option>
                     <?php foreach ($viewmodel['departments'] as $department) : ?>
-                        <option value="<?= $department['id'] ?>"><?= $department['name'] ?></option>
+                        <?php
+                        $option = '';
+                        if (isset($viewmodel['filters']) && isset($viewmodel['filters']['department'])) {
+                            if ($department['id'] == $viewmodel['filters']['department']) {
+                                $option = 'selected';
+                            }
+                        }
+                        ?>
+                        <option value="<?= $department['id'] ?>" <?= $option ?>><?= $department['name'] ?></option>
                     <?php endforeach; ?> 
                 </select>
             </td>
             <td>
                 <select class="custom-select d-block w-100" name="status" id="status">
-                    <option value="-1">All</option>
-                    <option value="1">Open</option>
-                    <option value="0">Closed</option>
+                    <?php foreach ($viewmodel['statuses'] as $status) : ?>
+                        <?php
+                        $option = '';
+                        if (isset($viewmodel['filters']) && isset($viewmodel['filters']['status'])) {
+                            if ($status['value'] == $viewmodel['filters']['status']) {
+                                $option = 'selected';
+                            }
+                        }
+                        ?>
+                        <option value="<?= $status['value'] ?>" <?= $option ?>><?= $status['name'] ?></option>
+                    <?php endforeach; ?> 
                 </select>
             </td>
             <td>
@@ -41,18 +58,34 @@
             </td>
             <td>
                 <select class="custom-select d-block w-100" name="date" id="date">
-                    <option value="0">Asc</option>
-                    <option value="1">Desc</option>
+                    <?php
+                    $asc = '';
+                    $desc = '';
+                        if (isset($viewmodel['filters']) && isset($viewmodel['filters']['date'])) {
+                            if ($viewmodel['filters']['date']) {
+                                $desc = 'selected';
+                            } else {
+                                $asc = 'selected';
+                            }
+                        }
+                    ?>
+                    <option value="0" <?= $asc ?>>Asc</option>
+                    <option value="1" <?= $desc ?>>Desc</option>
                 </select>
             </td>
-            <td></td>
+            <td>
+                <div class="btn-group">
+                    <button type="submit" value="submit" name="filter" class="form-control btn btn-primary btn-sm">Apply filters</button>
+                    <button type="submit" value="reset" name="filter" class="form-control btn btn-success btn-sm">Reset filters</button>
+                </div>
+            </td>
+        </form>
         </tr>
-
 
         <!-- TICKET ROWS -->
         <?php foreach ($viewmodel['tickets'] as $ticket): ?>
             <?php
-            $statusCss = $ticket['status'] ? 'active' : 'warning';
+            $statusCss = $ticket['status'] ? 'success' : 'warning';
             $statusToggledCss = $ticket['status'] ? 'warning' : 'success';
             $statusRow = $ticket['status'] ? 'Open' : 'Closed';
             $statusToggledRow = $ticket['status'] ? 'Close' : 'Open';
@@ -60,33 +93,33 @@
             $key = array_search($ticket['id_department'], $departmentsId);
             $reference = str_replace('-', '_', $ticket['reference']);
             ?>
-        <tr class="table-<?= $statusCss; ?>">
-            <td>
-                <?= $ticket['subject'] ?>
-            </td>
-            <td>
-                <?= $viewmodel['departments'][$key]['name'] ?>
-            </td>
-            <td>
-                <?= $statusRow ?>
-            </td>
-            <td>
-                <?= $ticket['email'] ?>
-            </td>
-            <td>
-                <?= $ticket['date'] ?>
-            </td>
-            <td>
-                <div class="btn-group">
-                    <button type="button" onclick="actionConfirm(<?= $ticket['id'] ?>)" id="toggle" value="toggle" class="btn btn-<?= $statusToggledCss ?> btn-sm"><?= $statusToggledRow ?></button>
-                    <button type="button" onclick="actionConfirm(<?= $ticket['id'] ?>)" id="delete" value="delete" class="btn btn-danger btn-sm">Delete</button>
-                    <a href="<?= ROOT_URL ?>ticket/view/<?= $reference ?>" id="view" value="view" class="btn btn-primary btn-sm">View</a>
-                </div>
-            </td>
-        </tr>
-    <?php endforeach; ?>
+            <tr class="table-<?= $statusCss; ?>">
+                <td>
+                    <?= $ticket['subject'] ?>
+                </td>
+                <td>
+                    <?= $viewmodel['departments'][$key]['name'] ?>
+                </td>
+                <td>
+                    <?= $statusRow ?>
+                </td>
+                <td>
+                    <?= $ticket['email'] ?>
+                </td>
+                <td>
+                    <?= $ticket['date'] ?>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href="<?= ROOT_URL ?>ticket/view/<?= $reference ?>" id="view" value="view" class="btn btn-primary btn-sm">View</a>
+                        <button type="button" onclick="confirmDelete(<?= $ticket['id'] ?>)" class="btn btn-danger btn-sm">Delete</button>
+                        <button type="button" onclick="confirmToggle(<?= $ticket['id'] ?>, '<?= $statusToggledRow ?>')" class="btn btn-<?= $statusToggledCss ?> btn-sm"><?= $statusToggledRow ?> ticket</button>
+                    </div>
+                </td>
+            </tr>
+        <?php endforeach; ?>
 
-</tbody>
-</table>
-
+        </tbody>
+    </table>
+</div>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>assets/js/popup.js"></script>

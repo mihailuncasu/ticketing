@@ -1,14 +1,57 @@
-function actionConfirm(id) { 
+function confirmDelete(id) {
     $('#confirmBox').simpleConfirm({
-        message: "Do you proceed?",
+        message: "Delete it for sure?",
         success: function () {
-            // Ajax call
-            alert('You pressed '+id);
+            // M: Ajax call
+            var getUrl = window.location;
+            var rootUrl = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+            $.ajax({
+                type: 'post',
+                url: rootUrl + "/ticket/delete",
+                data: {
+                    'id': id,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    location.reload();
+                },
+                error: function (data) {
+                    alert('Internal server error!');
+                }
+            })
         },
         cancel: function () {
-            // Ajax call
+            // M: We don't do anything;
         }
-    });  
+    });
+};
+
+function confirmToggle(id, action) {
+    $('#confirmBox').simpleConfirm({
+        message: action + " this ticket?",
+        success: function () {
+            // M: Ajax call
+            var getUrl = window.location;
+            var rootUrl = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+            $.ajax({
+                type: 'post',
+                url: rootUrl + "/ticket/toggle",
+                data: {
+                    'id': id,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    location.reload();
+                },
+                error: function (data) {
+                    alert('Internal server error!');
+                }
+            })
+        },
+        cancel: function () {
+            // M: We don't do anything;
+        }
+    });
 };
 
 (function ($) {
@@ -17,7 +60,7 @@ function actionConfirm(id) {
             options = {};
 
         var defaultOptions = {
-            title: 'Confirm action?',
+            title: 'Confirm action',
             message: '',
             acceptBtnLabel: 'Yes',
             cancelBtnLabel: 'Nope',
@@ -54,4 +97,4 @@ function actionConfirm(id) {
 
         return this;
     };
-})(jQuery);
+})($);

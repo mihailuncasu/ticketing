@@ -17,4 +17,31 @@ class Ticket extends Controller {
         $viewmodel =  new TicketModel();
         $this->returnView($viewmodel->view(), true);
     }
+    
+    protected function toggle() {
+        $viewmodel =  new TicketModel();
+        if ($viewmodel->toggle()) {
+            echo json_encode([
+                'status' => 'success'
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'fail'
+            ]);
+        }
+    }
+    
+    protected function delete() {
+        $viewmodel =  new TicketModel();
+        if ($viewmodel->delete()) {
+            echo json_encode([
+                'status' => 'success'
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'fail'
+            ]);
+        }
+    }
+    
 }
