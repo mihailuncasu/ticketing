@@ -3,8 +3,8 @@
 
 class HomeModel extends Model {
 
-    public function Index() {
-        return "asd";
+    public function index() {
+        
     }
 
 }
