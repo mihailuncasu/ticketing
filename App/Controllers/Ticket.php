@@ -7,5 +7,14 @@ class Ticket extends Controller {
         $viewmodel = new TicketModel();
         $this->returnView($viewmodel->create(), true);
     }
-
+    
+    protected function viewTickets() {
+        $viewmodel =  new TicketModel();
+        $this->returnView($viewmodel->viewTickets(), true);
+    }
+    
+    protected function view() {
+        $viewmodel =  new TicketModel();
+        $this->returnView($viewmodel->view(), true);
+    }
 }

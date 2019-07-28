@@ -29,7 +29,7 @@
                         <a class="nav-link" href="<?= ROOT_URL ?>ticket/create">Create ticket</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= ROOT_URL ?>ticket/view">View tickets</a>
+                        <a class="nav-link" href="<?= ROOT_URL ?>ticket/viewtickets">View tickets</a>
                     </li>
                 </ul>
             </div>

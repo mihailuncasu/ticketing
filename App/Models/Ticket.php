@@ -29,6 +29,7 @@ class TicketModel extends Model {
             if (!empty($errors)) {
                 Messages::setMsg(implode('.<br>', $errors) . '.', 'error');
             } else {
+                
                 // M: Generate the unique reference field having the format xx-yyyy;
                 // M: First, we take all the reference fields from the ticket table;
                 $this->query('SELECT reference FROM ticket');
@@ -59,16 +60,37 @@ class TicketModel extends Model {
                 if ($ticketInsert && $replyInsert) {
                     // M: Success message and redirect;
                     // M: Also remember how we reached that view ticket page;
-                    $SESSION['iAuthor'] = true;
+                    $_SESSION['iAuthor'] = 1;
                     //Messages::setMsg($text, $type)
                     header('Location: ' . ROOT_URL);
                 } else {
                     // M: Fail message and retry;
-                    //Messages::setMsg($text, $type);
+                    Messages::setMsg('Ups. We couldn\'t submit your ticket. Please try again.', 'error');
                 }
             }
         }
         return $departments;
     }
-
+    
+    public function viewTickets() {
+        // M: Store the info that we accesed the admin page;
+        $_SESSION['iAuthor'] = 0;
+        
+        // M: Get all departments;
+        $this->query("SELECT * FROM departments");
+        $departments = $this->resultSet();
+        
+        // M: Get all the tickets;
+        $this->query('SELECT * FROM ticket');
+        $tickets = $this->resultSet();
+        return [
+            'departments' => $departments,
+            'tickets' => $tickets
+        ];
+    }
+    
+    public function view() {
+        $get = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+        return $get;
+    }
 }

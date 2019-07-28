@@ -5,7 +5,7 @@
     
     <div class="row">
         <div class="col-md-8 order-md-1">
-            <form method="POST"  action="<?php $_SERVER['PHP_SELF']; ?>">
+            <form method="POST">
                 <hr class="mb-4">
                 <div class="mb-3">
                     <label for="department">Department</label>
