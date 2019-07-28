@@ -11,3 +11,12 @@ footer {
 .spacer {
     height: 50px;
 }
+
+.alert {
+    width: 65%;
+}
+
+.myContainer {
+    margin: 0 auto;
+    padding-top: 5%;
+}

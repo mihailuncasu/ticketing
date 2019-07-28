@@ -36,7 +36,7 @@
         </nav>
 
         <!-- MAIN CONTENT -->
-        <div class="container">
+        <div class="container myContainer">
             <div class="row">
                 <?php Messages::display(); ?>
                 <?php require($view); ?>
