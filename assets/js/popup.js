@@ -13,7 +13,8 @@ function confirmDelete(id) {
                 },
                 dataType: 'json',
                 success: function (data) {
-                    location.reload();
+                    // M: Avoid form resubmission using this workaround in order to reload the page;
+                    window.location.href = window.location.href;
                 },
                 error: function (data) {
                     alert('Internal server error!');
@@ -41,7 +42,7 @@ function confirmToggle(id, action) {
                 },
                 dataType: 'json',
                 success: function (data) {
-                    location.reload();
+                    window.location.href = window.location.href;
                 },
                 error: function (data) {
                     alert('Internal server error!');

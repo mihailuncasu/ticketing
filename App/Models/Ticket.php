@@ -4,6 +4,7 @@
 
 class TicketModel extends Model {
 
+    // M: Create a ticket;
     public function create() {
         // M: Get the departments and the pass to the view;
         $this->query("SELECT * FROM departments");
@@ -11,21 +12,27 @@ class TicketModel extends Model {
         // M: Check if the ticket was subbmited
         // M: Sanitize POST
         $post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-
+        $status = '';
+        
         $errors = [];
         if ($post['submit']) {
+            
+            // M: Subject field error;
             if (empty($post['subject'])) {
                 array_push($errors, 'Subject field is empty');
             }
-
+            
+            // M: Email field error;
             if (empty($post['email'])) {
                 array_push($errors, 'Email field is empty');
             }
-
+            
+            // M: Message field error;
             if (!empty($post['Message'])) {
                 array_push($errors, 'Message field is empty');
             }
 
+            // M: Make a qt string from the array;
             if (!empty($errors)) {
                 Messages::setMsg(implode('.<br>', $errors) . '.', 'error');
             } else {
@@ -61,17 +68,21 @@ class TicketModel extends Model {
                     // M: Success message and redirect;
                     // M: Also remember how we reached that view ticket page;
                     $_SESSION['iAuthor'] = 1;
-                    //Messages::setMsg($text, $type)
-                    header('Location: ' . ROOT_URL);
+                    header('Location: ' . ROOT_URL . 'ticket/view/' . str_replace('-', '_', $referenceField));
+                    $status = 'success';
                 } else {
                     // M: Fail message and retry;
-                    Messages::setMsg('Ups. We couldn\'t submit your ticket. Please try again.', 'error');
+                    $status = 'fail';
                 }
             }
         }
-        return $departments;
+        return [
+            'departments' => $departments,
+            'status' => $status
+        ];
     }
     
+    // M: View all tickets;
     public function viewTickets() {
         // M: Store the info that we accesed the admin page;
         $_SESSION['iAuthor'] = 0;
@@ -81,6 +92,7 @@ class TicketModel extends Model {
         $departments = $this->resultSet();
         array_unshift($departments, ['id' => '-1', 'name' => 'All']);
         
+        // M: For the filter dropdown;
         $statuses = [
             0 => [
                 'value' => -1,
@@ -155,11 +167,66 @@ class TicketModel extends Model {
         ];
     }
     
+    // M: View ticket;
     public function view() {
+        // M: Sanitize post & get;
         $get = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
-        return $get;
+        $post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+        
+        if (empty($get['reference']) || !isset($_SESSION['iAuthor'])) {
+            // M: This means that the page for the ticket has been accesed by another person so we will redirect;
+            header('Location: ' . ROOT_URL . 'ticket/viewtickets');
+            $status = 'fail';
+        }
+        $status = '';
+        $messages = [];
+        
+        // M: Add a new reply for this ticket;
+        if ($post['submit']) {
+            $this->query('INSERT INTO replies (message, ticket_reference, iAuthor, date) VALUES (:message, :ticket_reference, :iAuthor, :date)');
+            $this->bind(':message', $post['message']);
+            $this->bind(':ticket_reference', $post['reference']);
+            $this->bind(':iAuthor', $_SESSION['iAuthor']);
+            $this->bind(':date', date("Y-m-d H:i:s"));
+            $this->execute();
+            
+            if ($this->lastInsertId()) {
+                // M: Reply was posted with success;
+                Messages::setMsg('Your reply was posted with success', 'success');
+            } else {
+                // M: Something went wrong;
+                Messages::setMsg('Something went wrong. Please try again.', 'error');
+            }
+        }
+        
+        // M: Get the ticket;
+        $this->query('SELECT * FROM ticket WHERE reference = :reference');
+        $this->bind(':reference', str_replace('_', '-', $get['reference']));
+        $ticket = $this->single();
+                
+        // M: If empty we show a properly message and redirect the user to the list;
+        if (empty($ticket)) {
+            header('Location: ' . ROOT_URL . 'ticket/viewtickets');
+            $status = 'fail';
+        } else {
+            // M: Get that department name;
+            $this->query('SELECT name FROM departments WHERE id = :id');
+            $this->bind(':id', $ticket['id_department']);
+            $ticket['department'] = $this->single();
+            // M: Now we must get all the messages related to this ticket;
+            $this->query('SELECT * FROM replies WHERE ticket_reference = :reference');
+            $this->bind(':reference', $ticket['reference']);
+            $messages = $this->resultSet();
+        }
+        
+        return [
+            'ticket' => $ticket,
+            'status' => $status,
+            'messages' => $messages
+        ];
     }
     
+    // M: Delete ticket;
     public function delete() {
         // M: Sanitize POST
         $post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -172,7 +239,13 @@ class TicketModel extends Model {
                 $this->query('DELETE FROM ticket WHERE id = :id');
                 $this->bind(':id', $post['id']);
                 $this->execute();
-                Messages::setMsg("Ticket deleted with success.", 'success');
+                
+                // M: And also the messages;
+                $this->query('DELETE FROM replies WHERE ticket_reference = :reference');
+                $this->bind(':reference', $ticket['reference']);
+                $this->execute();
+                
+                Messages::setMsg("Ticket deleted with success. Also all replies related to this ticket have been removed.", 'success');
                 return true;
             }
         } else {
@@ -180,7 +253,7 @@ class TicketModel extends Model {
             Messages::setMsg('Illegal try to access the page.', 'error');
         }
     }
-    
+    // M: Open/close ticket;
     public function toggle() {
         // M: Sanitize POST
         $post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);

@@ -1,0 +1,13 @@
+.alert {
+    width: 100%;
+}
+
+.myReply {
+    padding: 1%;
+    margin: 1%;
+    overflow: auto;
+}
+
+.myColumn {
+    overflow: auto;
+}

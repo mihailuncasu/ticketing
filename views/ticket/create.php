@@ -10,7 +10,7 @@
                 <div class="mb-3">
                     <label for="department">Department</label>
                     <select class="custom-select d-block w-100" name="department" id="department">
-                        <?php foreach($viewmodel as $department) : ?>
+                        <?php foreach($viewmodel['departments'] as $department) : ?>
                             <option value="<?= $department['id'] ?>"><?= $department['name'] ?></option>
                         <?php endforeach; ?> 
                     </select>
