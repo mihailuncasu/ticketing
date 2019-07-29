@@ -1,2 +1,2 @@
-# ticketing
+# TicketIt
 Ticketing app 
